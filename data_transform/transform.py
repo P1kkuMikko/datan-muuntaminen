@@ -11,11 +11,15 @@ def clean_strings(df: pd.DataFrame) -> pd.DataFrame:
 
     Palauta siivottu DataFrame.
     """
+    df = df.copy()
+    for col in ["name", "capital"]:
+        if col in df.columns:
+            df[col] = df[col].astype("string").str.strip().str.title()
 
     return df
 
 
-def handle_missing(df):
+def handle_missing(df: pd.DataFrame) -> pd.DataFrame:
     """
     TODO: Käsittele puuttuvat arvot.
 
@@ -27,11 +31,15 @@ def handle_missing(df):
 
     Palauta DataFrame, jossa puuttuvat arvot käsitelty.
     """
+    df = df.copy()
+    df = df.replace(["N/A", "n/a", "NA", "null", "None", ""], pd.NA)
+    print(df.isna().sum())
+    df = df.dropna()
 
     return df
 
 
-def remove_duplicates(df):
+def remove_duplicates(df: pd.DataFrame) -> pd.DataFrame:
     """
     # TODO: Poista duplikaatit.
 
@@ -41,11 +49,14 @@ def remove_duplicates(df):
     - Poista päällekkäiset rivit perustuen 'name'-sarakkeeseen
     - Palauta puhdistettu DataFrame
     """
+    df = df.copy()
+    df = clean_strings(df)
+    df = df.drop_duplicates(subset=["name"], keep="first")
 
     return df
 
 
-def fix_types_and_sort(df):
+def fix_types_and_sort(df: pd.DataFrame) -> pd.DataFrame:
     """
     TODO: Korjaa sarakkeiden tyypit ja järjestä.
 
@@ -55,6 +66,10 @@ def fix_types_and_sort(df):
     - Muunna numeromuotoiset sarakkeet numeerisiksi
     - Järjestä DataFrame nimen mukaan
     """
+    df = df.copy()
+    if "population" in df.columns:
+        df["population"] = pd.to_numeric(df["population"], errors="coerce")
+    df = df.sort_values(by="name").reset_index(drop=True)
 
     return df
 
